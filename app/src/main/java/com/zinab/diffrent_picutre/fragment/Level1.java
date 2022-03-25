@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 
@@ -15,12 +16,14 @@ import android.os.CountDownTimer;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.button.MaterialButton;
 import com.zinab.diffrent_picutre.R;
 
+import java.io.IOException;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
@@ -48,8 +51,6 @@ public class Level1 extends Fragment {
     private View btn9Copy;
     private View btn10;
     private View btn10Copy;
-    // تعريف مشغل الموسيقى
-    MediaPlayer mp;
     // تعريف العداد التنازلي
     CountDownTimer countDownTimer;
     public int point = 0;
@@ -144,36 +145,73 @@ public class Level1 extends Fragment {
         //في حال الفوز اصدار صوت مختلف والانتقال للواجهة التالية و في حال عدم الفوز اصدار صوت فقط
         if (point == 10) {
             //استدعاء الصوت الذي احتاجه من ملف raw وتشغيله
-            mp = MediaPlayer.create(getActivity(), R.raw.next);
-            mp.start();
+            MediaPlayer next = MediaPlayer.create(getActivity(), R.raw.next);
+            next.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            next.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    next.release();
+                }
+            });
+            next.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                @Override
+                public void onPrepared(MediaPlayer mp) {
+                    mp.start();
+                }
+            });
             //الانتقال للواجهة التالية في حال الفوز
             FragmentManager fm = getActivity().getSupportFragmentManager();
             FragmentTransaction ft = fm.beginTransaction();
             ft.replace(R.id.Framlayout, new Level2());
             ft.commit();
         } else {
-            mp = MediaPlayer.create(getActivity(), R.raw.sucess);
-            mp.start();
+            MediaPlayer sucess = MediaPlayer.create(getActivity(), R.raw.sucess);
+            sucess.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            sucess.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    sucess.release();
+                }
+            });
+            sucess.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                @Override
+                public void onPrepared(MediaPlayer mp) {
+                    mp.start();
+                }
+            });
         }
     }
 
     // هذه الدالة لتشغيل العداد التنازلي
     void startTimer(Activity activity) {
-        countDownTimer = new CountDownTimer(60000, 1000) {
+        countDownTimer = new CountDownTimer(30000, 1000) {
             public void onTick(long millisUntilFinished) {
                 timer.setText("time: " + String.format(FORMAT,
                         TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished) - TimeUnit.MINUTES.toSeconds(
                                 TimeUnit.MILLISECONDS.toMinutes(millisUntilFinished))));
             }
+
             public void onFinish() {
                 // في حال انتهى العداد يخرج له dialog والذي يحتوي على معلومات الخسارة
-                mp = MediaPlayer.create(activity, R.raw.gameover);
-                mp.start();
-                // دالة اظهار dialog
+                MediaPlayer gameover = MediaPlayer.create(activity, R.raw.gameover);
+                gameover.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                gameover.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                    @Override
+                    public void onCompletion(MediaPlayer mp) {
+                        gameover.release();
+                    }
+                });
+                gameover.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                    @Override
+                    public void onPrepared(MediaPlayer mp) {
+                        mp.start();
+                    }
+                });                    // دالة اظهار dialog
                 showDialog();
             }
         }.start();
     }
+
     // دالة اظهار dialog
     void showDialog() {
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -187,8 +225,8 @@ public class Level1 extends Fragment {
         alertDialog.show();
         // تعريف الازرار  في dialog
         TextView tv = itemView.findViewById(R.id.textView2);
-        MaterialButton sub = itemView.findViewById(R.id.button2);
-        tv.setText("Your score : " + score);
+        Button sub = (Button) itemView.findViewById(R.id.button2);
+        tv.setText("Your score : " + score + "");
         sub.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -207,7 +245,8 @@ public class Level1 extends Fragment {
         // ايقاف التايمر في حال توقفت الصفحة عن العرض
         countDownTimer.cancel();
     }
- // دالة استدعاء الviews
+
+    // دالة استدعاء الviews
     void Inflate(View v) {
         timer = (TextView) v.findViewById(R.id.timer);
         btn1 = (View) v.findViewById(R.id.btn1);
@@ -233,5 +272,4 @@ public class Level1 extends Fragment {
         btn10 = (View) v.findViewById(R.id.btn10);
         btn10Copy = (View) v.findViewById(R.id.btn10Copy);
     }
-
 }

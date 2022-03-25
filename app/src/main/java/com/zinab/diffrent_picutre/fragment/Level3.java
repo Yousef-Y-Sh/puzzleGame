@@ -14,6 +14,7 @@ import android.os.CountDownTimer;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.android.material.button.MaterialButton;
@@ -118,15 +119,35 @@ public class Level3 extends Fragment {
         yourPoints3.setText("Your scroe: " + Level1.score);
         if (point == 8) {
             mp = MediaPlayer.create(getActivity(), R.raw.next);
-            mp.start();
-            FragmentManager fm = getActivity().getSupportFragmentManager();
+            mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    mp.release();
+                }
+            });
+            mp.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                @Override
+                public void onPrepared(MediaPlayer mp) {
+                    mp.start();
+                }
+            });                FragmentManager fm = getActivity().getSupportFragmentManager();
             FragmentTransaction ft = fm.beginTransaction();
             ft.replace(R.id.Framlayout, new Level4());
             ft.commit();
         } else {
             mp = MediaPlayer.create(getActivity(), R.raw.sucess);
-            mp.start();
-        }
+            mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    mp.release();
+                }
+            });
+            mp.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                @Override
+                public void onPrepared(MediaPlayer mp) {
+                    mp.start();
+                }
+            });            }
     }
 
     void inflate(View v) {
@@ -153,7 +174,7 @@ public class Level3 extends Fragment {
 
     void startTimer() {
         final String FORMAT = "%02d";
-        countDownTimer = new CountDownTimer(60000, 1000) {
+        countDownTimer = new CountDownTimer(30000, 1000) {
             public void onTick(long millisUntilFinished) {
 
                 timer.setText("time: " + String.format(FORMAT,
@@ -163,8 +184,18 @@ public class Level3 extends Fragment {
 
             public void onFinish() {
                 mp = MediaPlayer.create(getActivity(), R.raw.gameover);
-                mp.start();
-                showDialog();
+                mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                    @Override
+                    public void onCompletion(MediaPlayer mp) {
+                        mp.release();
+                    }
+                });
+                mp.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                    @Override
+                    public void onPrepared(MediaPlayer mp) {
+                        mp.start();
+                    }
+                });                    showDialog();
             }
         }.start();
 
@@ -180,7 +211,7 @@ public class Level3 extends Fragment {
         alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         alertDialog.show();
         TextView tv = itemView.findViewById(R.id.textView2);
-        MaterialButton sub = itemView.findViewById(R.id.button2);
+        Button sub = (Button) itemView.findViewById(R.id.button2);
         tv.setText("Your score : " + Level1.score);
         sub.setOnClickListener(new View.OnClickListener() {
             @Override
